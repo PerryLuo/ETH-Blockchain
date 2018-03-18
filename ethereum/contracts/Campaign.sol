@@ -1,19 +1,35 @@
 pragma solidity ^0.4.17;
 
 contract CampaignFactory {
-    address[] public deployedCampaigns;
 
-    function createCampaign(uint minimum) public {
-        address newCampaign = new Campaign(minimum, msg.sender);
-        deployedCampaigns.push(newCampaign);
+    address[] public deployedCampaignsAddress;
+    address[] public managersAddress;
+
+    function createCampaign(string description, uint minimumContribution, string campaignCategory, string endDate) public {
+        Campaign newlyCreatedCampaign = new Campaign(description, minimumContribution, campaignCategory, endDate, msg.sender);
+        deployedCampaignsAddress.push(newlyCreatedCampaign);
+        managersAddress.push(msg.sender);
     }
 
     function getDeployedCampaigns() public view returns (address[]) {
-        return deployedCampaigns;
+        return deployedCampaignsAddress;
+    }
+
+    function getManagersAddress() public view returns (address[]) {
+        return managersAddress;
     }
 }
 
 contract Campaign {
+
+    struct NewCampaignType {
+        string description;
+        uint minimumContribution;
+        string campaignCategory;
+        string endDate;
+        address managerAddress;
+    }
+
     struct Request {
         string description;
         uint value;
@@ -23,25 +39,43 @@ contract Campaign {
         mapping(address => bool) approvals;
     }
 
+    NewCampaignType public campaignDetails;
+    NewCampaignType public getCampaignDetails;
     Request[] public requests;
-    address public manager;
-    uint public minimumContribution;
     mapping(address => bool) public approvers;
     uint public approversCount;
+    address public currentManager;
 
     modifier restricted() {
-        require(msg.sender == manager);
+        require(msg.sender == currentManager);
         _;
     }
 
-    function Campaign(uint minimum, address creator) public {
-        manager = creator;
-        minimumContribution = minimum;
+    function Campaign(string description, uint minimumContribution, string campaignCategory, string endDate, address managerAddress) public {
+        NewCampaignType memory createCampaign = NewCampaignType({
+            description: description,
+            minimumContribution: minimumContribution,
+            campaignCategory: campaignCategory,
+            endDate: endDate,
+            managerAddress: managerAddress
+        });
+        campaignDetails = createCampaign;
+    }
+
+    function getCampaignDetails() public view returns (
+        string, uint, string, string, address
+        ) {
+            return(
+            campaignDetails.description,
+            campaignDetails.minimumContribution,
+            campaignDetails.campaignCategory,
+            campaignDetails.endDate,
+            campaignDetails.managerAddress
+            );
     }
 
     function contribute() public payable {
-        require(msg.value > minimumContribution);
-
+        require(msg.value > campaignDetails.minimumContribution);
         approvers[msg.sender] = true;
         approversCount++;
     }
@@ -82,11 +116,11 @@ contract Campaign {
       uint, uint, uint, uint, address
       ) {
         return (
-          minimumContribution,
+          campaignDetails.minimumContribution,
           this.balance,
           requests.length,
           approversCount,
-          manager
+          campaignDetails.managerAddress
         );
     }
 
