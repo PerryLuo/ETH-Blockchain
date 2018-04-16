@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import Layout from '../../components/Layout';
-import { Form, Button, Input, Message } from 'semantic-ui-react';
+import { Form, Button, Input, Message, Container } from 'semantic-ui-react';
 import factory from '../../ethereum/factory';
 import web3 from '../../ethereum/web3';
 import { Router } from '../../routes';
 
 class CampaignNew extends Component {
   state = {
+    description: '',
     minimumContribution: '',
+    category: '',
+    finishDate: '',
     errorMessage: '',
     loading: false
   };
@@ -20,7 +23,12 @@ class CampaignNew extends Component {
     try {
       const accounts = await web3.eth.getAccounts();
       await factory.methods
-        .createCampaign(this.state.minimumContribution)
+        .createCampaign(
+          this.state.description,
+          this.state.minimumContribution,
+          this.state.category,
+          this.state.finishDate
+        )
         .send({
           from: accounts[0]
         });
@@ -36,25 +44,57 @@ class CampaignNew extends Component {
   render() {
     return (
       <Layout>
-        <h3>Create a new ERC20 ICO!</h3>
-
-        <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage}>
-          <Form.Field>
-            <label>Minimum Contribution</label>
-            <Input
-              label="Ether"
-              labelPosition="right"
-              value={this.state.minimumContribution}
-              onChange={(event) =>
-                this.setState({ minimumContribution: event.target.value })
-              }
+        <h3>Create a ERC20 ICO!</h3>
+        <Container>
+          <Form onSubmit={this.onSubmit} error={!!this.state.errorMessage}>
+            <Form.Field>
+              <label>Name of ICO</label>
+              <Input
+                value={this.state.description}
+                onChange={(event) =>
+                  this.setState({ description: event.target.value })
+                }
+              />
+              <br />
+              <br />
+              <label>Minimum Contribution</label>
+              <Input
+                label="Ether"
+                labelPosition="right"
+                value={this.state.minimumContribution}
+                onChange={(event) =>
+                  this.setState({ minimumContribution: event.target.value })
+                }
+              />
+              <br />
+              <br />
+              <label>ICO Category</label>
+              <Input
+                value={this.state.category}
+                onChange={(event) =>
+                  this.setState({ category: event.target.value })
+                }
+              />
+              <br />
+              <br />
+              <label>ICO End Date</label>
+              <Input
+                value={this.state.finishDate}
+                onChange={(event) =>
+                  this.setState({ finishDate: event.target.value })
+                }
+              />
+            </Form.Field>
+            <Message
+              error
+              header="Oops, Something went wrong."
+              content={this.state.errorMessage}
             />
-          </Form.Field>
-          <Message error header="Oops!" content={this.state.errorMessage} />
-          <Button loading={this.state.loading} primary>
-            Create!
-          </Button>
-        </Form>
+            <Button loading={this.state.loading} primary>
+              Create!
+            </Button>
+          </Form>
+        </Container>
       </Layout>
     );
   }

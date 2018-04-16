@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import factory from '../ethereum/factory';
 import campaign from '../ethereum/campaign';
-import { Card, Button } from 'semantic-ui-react';
+import { Card, Button, Tab } from 'semantic-ui-react';
 import Layout from '../components/Layout';
 import { Link } from '../routes';
 
@@ -12,65 +12,128 @@ class CampaignIndex extends Component {
     const deployedCampaignsAddress = await factory.methods
       .getDeployedCampaigns()
       .call();
+    console.log('Campaign Address');
+    console.log(deployedCampaignsAddress);
 
-    // let each;
-    // for (var i = 0; i < deployedCampaignsAddress.length; i++) {
-    //   each = await campaign(deployedCampaignsAddress[i])
-    //     .methods.getCampaignDetails()
-    //     .call();
-    // }
-    // console.log(deployedCampaignsAddress.length);
-    // console.log(each);
-
-    // const arrCampaignAddress = campaign(deployedCampaignsAddress);
-    // const details = await arrCampaignAddress.map((details) => {
-    //   details.methods.getCampaignDetails().call();
-    // });
-
-    // console.log(details);
-    const campaignDetails = await deployedCampaignsAddress.map(
-      (singleDeployedCampaign) => {
-        return campaign(singleDeployedCampaign)
+    let campaignDetails = await Promise.all(
+      deployedCampaignsAddress.map(async (singleCampaignsAddress) => {
+        const singleCampaignDetails = await campaign(singleCampaignsAddress)
           .methods.getCampaignDetails()
           .call();
-      }
+        return {
+          description: singleCampaignDetails[0],
+          minimumContribution: singleCampaignDetails[1],
+          type: singleCampaignDetails[2],
+          finishDate: singleCampaignDetails[3],
+          contributionAddress: singleCampaignDetails[4],
+          contractAddress: singleCampaignsAddress
+        };
+      })
     );
 
-    // const getCampaignDetails = await campaign(deployedCampaignsAddress[0])
-    //   .methods.getCampaignDetails()
-    //   .call();
+    return { campaignDetails };
 
-    console.log(deployedCampaignsAddress[0]);
-    console.log(campaignDetails);
+    // const campaignDetailsArray = [];
+    // for (var i = 0; i < deployedCampaignsAddress.length; i++) {
+    //   var element = deployedCampaignsAddress[i];
+    //   const campaignDetails = await campaign(element)
+    //     .methods.getCampaignDetails()
+    //     .call();
+    //   campaignDetailsArray.push(campaignDetails);
+    //   // console.log(campaignDetailsArray);
+    // }
 
-    return {};
+    // const campaignDetailsObj = campaignDetailsArray.map(
+    //   (singleCampaignDetails) => {
+    //     return {
+    //       description: singleCampaignDetails[0],
+    //       minimumContribution: singleCampaignDetails[1],
+    //       type: singleCampaignDetails[2],
+    //       finishDate: singleCampaignDetails[3],
+    //       contributionAddress: singleCampaignDetails[4]
+    //     };
+    //   }
+    // );
+
+    // return { campaignDetailsObj };
   }
 
-  // renderCampaigns() {
-  //   //getInitialProps renders the data and stores it in "props"
-  //   const items = this.props.campaigns.map((address) => {
-  //     return {
-  //       header: address,
-  //       description: (
-  //         <Link route={`/campaigns/${address}`}>
-  //           <a>View campaign</a>
-  //         </Link>
-  //       ),
-  //       fluid: true
-  //     };
-  //   });
-  //   return <Card.Group items={items} />;
-  // }
+  renderCard() {}
+
+  renderCampaigns() {
+    //getInitialProps renders the data and stores it in "props"
+    console.log('this.props.campaignDetails below');
+    console.log(this.props.campaignDetails);
+
+    const campaignDetailsArr = this.props.campaignDetails;
+
+    let campaignTypeArr = campaignDetailsArr.map(
+      (singleCampaignDetails) => singleCampaignDetails.type
+    );
+    let cleanedCampaignTypeArr = [...new Set(campaignTypeArr)];
+    console.log('Types of ICO');
+    console.log(cleanedCampaignTypeArr);
+
+    function GetCampaignDetailsByType(singleType) {
+      return campaignDetailsArr.filter(
+        (singleCampaignDetails) => singleCampaignDetails.type === singleType
+      );
+    }
+
+    const campaignTypes = cleanedCampaignTypeArr.map((singleCampaignType) => {
+      const campaignDetailsByType = GetCampaignDetailsByType(
+        singleCampaignType
+      ).map((data) => {
+        return {
+          header: 'Name: ' + data.description,
+          description:
+            'Minimum Contribution (ETH): ' + data.minimumContribution,
+          meta: 'Contribution Address: ' + data.contributionAddress,
+          // extra: 'Contribution Deadline ' + data.finishDate,
+          extra: (
+            <Link route={`/campaigns/${data.contractAddress}`}>
+              <a>
+                <h3>View Campaign</h3>
+              </a>
+            </Link>
+          ),
+          fluid: true
+        };
+      });
+
+      const CardExampleGroupProps = () => (
+        <Card.Group items={campaignDetailsByType} />
+      );
+
+      return {
+        menuItem: singleCampaignType,
+        render: () => (
+          <Tab.Pane attached={false}> {CardExampleGroupProps()} </Tab.Pane>
+        )
+      };
+    });
+    console.log('campagin types');
+    console.log(campaignTypes);
+
+    return (
+      <Tab
+        menu={{
+          secondary: true,
+          pointing: true
+        }}
+        panes={campaignTypes}
+      />
+    );
+  }
 
   render() {
     return (
       <Layout>
         <div>
           <h3>
-            Welcome to ERC20 Lambo! Your next Lambo is just an ERC20 ICO away!
+            Welcome to ERC20 Lambo!Your next Lambo is just an ERC20 ICO away!
           </h3>
-          <h3>Open ICOs to Participate</h3>
-
+          <h3> Open ICOs to Participate </h3> <br />
           <Link route="/campaigns/new">
             <a>
               <Button
@@ -81,7 +144,8 @@ class CampaignIndex extends Component {
               />
             </a>
           </Link>
-          {this.renderCampaigns()}
+          <br />
+          <br /> {this.renderCampaigns()}
         </div>
       </Layout>
     );

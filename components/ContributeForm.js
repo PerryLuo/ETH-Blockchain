@@ -11,7 +11,7 @@ class ContributeForm extends Component {
     loading: false
   };
 
-  onSubmit = async event => {
+  onSubmit = async (event) => {
     event.preventDefault();
 
     const campaign = Campaign(this.props.address);
@@ -27,7 +27,7 @@ class ContributeForm extends Component {
 
       Router.replaceRoute(`/campaigns/${this.props.address}`);
     } catch (err) {
-      this.setState({ errorMessage: err.message });
+      this.setState({ errorMessage: err.message.toString().split('\n')[0] });
     }
 
     this.setState({ loading: false, value: '' });
@@ -40,13 +40,17 @@ class ContributeForm extends Component {
           <label>Amount to Contribute</label>
           <Input
             value={this.state.value}
-            onChange={event => this.setState({ value: event.target.value })}
-            label="ether"
+            onChange={(event) => this.setState({ value: event.target.value })}
+            label="Ether"
             labelPosition="right"
           />
         </Form.Field>
 
-        <Message error header="Oops!" content={this.state.errorMessage} />
+        <Message
+          error
+          header="Oops, Something went wrong"
+          content={this.state.errorMessage}
+        />
         <Button primary loading={this.state.loading}>
           Contribute!
         </Button>

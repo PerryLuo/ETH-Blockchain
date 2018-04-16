@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import Layout from '../../components/Layout';
 import Campagin from '../../ethereum/campaign';
-import { Card, Grid } from 'semantic-ui-react';
+import { Card, Grid, Button } from 'semantic-ui-react';
 import web3 from '../../ethereum/web3';
 import ContributeForm from '../../components/ContributeForm';
+import { Link } from '../../routes';
 
 class CampaignShow extends Component {
   static async getInitialProps(props) {
     const campaign = Campagin(props.query.address);
     const summary = await campaign.methods.getSummary().call();
-    campaign.methods.setCurrentManager(summary[4]);
     console.log(summary);
+    // campaign.methods.setCurrentManager(summary[4]);
     return {
       address: props.query.address,
       minimumContribution: summary[0],
@@ -33,8 +34,9 @@ class CampaignShow extends Component {
     const items = [
       {
         header: manager,
-        meta: 'Address of manager',
-        description: 'creater of the ico',
+        meta: 'Address for Contribution ',
+        description:
+          'Address to contribute your ETH to participate in this ICO',
         style: { overflowWrap: 'break-word' }
       },
       {
@@ -52,7 +54,7 @@ class CampaignShow extends Component {
       },
       {
         header: approversCount,
-        meta: 'Number of people contributed',
+        meta: 'Number of people contributed to this ICO',
         description: '',
         style: { overflowWrap: 'break-word' }
       },
@@ -72,7 +74,17 @@ class CampaignShow extends Component {
       <Layout>
         <h3>Campagin Show</h3>
         <Grid>
-          <Grid.Column width={10}>{this.renderCard()}</Grid.Column>
+          <Grid.Column width={10}>
+            {this.renderCard()}
+            <br />
+            <br />
+            <Link route={`/campaigns/${this.props.address}/requests`}>
+              <a>
+                <Button primary>View Requests</Button>
+              </a>
+            </Link>
+          </Grid.Column>
+
           <Grid.Column width={6}>
             <ContributeForm address={this.props.address} />
           </Grid.Column>

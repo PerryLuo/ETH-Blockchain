@@ -62,16 +62,14 @@ contract Campaign {
         campaignDetails = createCampaign;
     }
 
-    function getCampaignDetails() public view returns (
-        string, uint, string, string, address
-        ) {
-            return(
-            campaignDetails.description,
-            campaignDetails.minimumContribution,
-            campaignDetails.campaignCategory,
-            campaignDetails.endDate,
-            campaignDetails.managerAddress
-            );
+    function getCampaignDetails() public view returns (string, uint, string, string, address) {
+        return(
+        campaignDetails.description,
+        campaignDetails.minimumContribution,
+        campaignDetails.campaignCategory,
+        campaignDetails.endDate,
+        campaignDetails.managerAddress
+        );
     }
 
     function contribute() public payable {
@@ -82,11 +80,11 @@ contract Campaign {
 
     function createRequest(string description, uint value, address recipient) public restricted {
         Request memory newRequest = Request({
-           description: description,
-           value: value,
-           recipient: recipient,
-           complete: false,
-           approvalCount: 0
+            description: description,
+            value: value,
+            recipient: recipient,
+            complete: false,
+            approvalCount: 0
         });
 
         requests.push(newRequest);
@@ -112,9 +110,7 @@ contract Campaign {
         request.complete = true;
     }
 
-    function getSummary() public view returns (
-      uint, uint, uint, uint, address
-      ) {
+    function getSummary() public view returns (uint, uint, uint, uint, address) {
         return (
           campaignDetails.minimumContribution,
           this.balance,
