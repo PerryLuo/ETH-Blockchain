@@ -52,6 +52,7 @@ contract Campaign {
     }
 
     function Campaign(string description, uint minimumContribution, string campaignCategory, string endDate, address managerAddress) public {
+        currentManager = managerAddress;
         NewCampaignType memory createCampaign = NewCampaignType({
             description: description,
             minimumContribution: minimumContribution,

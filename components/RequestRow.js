@@ -32,7 +32,7 @@ class RequestRow extends Component {
         disabled={request.complete}
         positive={readyToFinalize && !request.complete}
       >
-        <Cell>{id}</Cell>
+        <Cell>{id + 1}</Cell>
         <Cell>{request.description}</Cell>
         <Cell>{web3.utils.fromWei(request.value, 'ether')}</Cell>
         <Cell>{request.recipient}</Cell>
