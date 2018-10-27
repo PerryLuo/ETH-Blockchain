@@ -20,6 +20,8 @@ class CampaignIndex extends Component {
         const singleCampaignDetails = await campaign(singleCampaignsAddress)
           .methods.getCampaignDetails()
           .call();
+        console.log('this');
+        console.log(singleCampaignDetails);
         return {
           description: singleCampaignDetails[0],
           minimumContribution: singleCampaignDetails[1],
@@ -32,30 +34,6 @@ class CampaignIndex extends Component {
     );
 
     return { campaignDetails };
-
-    // const campaignDetailsArray = [];
-    // for (var i = 0; i < deployedCampaignsAddress.length; i++) {
-    //   var element = deployedCampaignsAddress[i];
-    //   const campaignDetails = await campaign(element)
-    //     .methods.getCampaignDetails()
-    //     .call();
-    //   campaignDetailsArray.push(campaignDetails);
-    //   // console.log(campaignDetailsArray);
-    // }
-
-    // const campaignDetailsObj = campaignDetailsArray.map(
-    //   (singleCampaignDetails) => {
-    //     return {
-    //       description: singleCampaignDetails[0],
-    //       minimumContribution: singleCampaignDetails[1],
-    //       type: singleCampaignDetails[2],
-    //       finishDate: singleCampaignDetails[3],
-    //       contributionAddress: singleCampaignDetails[4]
-    //     };
-    //   }
-    // );
-
-    // return { campaignDetailsObj };
   }
 
   renderCard() {}
@@ -131,7 +109,7 @@ class CampaignIndex extends Component {
       <Layout>
         <div>
           <h3>
-            Welcome to ERC20 Lambo!Your next Lambo is just an ERC20 ICO away!
+            Welcome to ERC20 ICO! Create Your own ERC20 ICO and Start Building!
           </h3>
           <h3> Open ICOs to Participate </h3> <br />
           <Link route="/campaigns/new">
